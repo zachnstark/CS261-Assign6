@@ -77,25 +77,25 @@ void _setTableSize(struct hashMap * ht, int newTableSize, comparator keyCompare,
    int i;
    int idx;
    int temp_count = ht->count;
-   hashLink **temp = malloc(sizeof(hashLink *) * newTableSize);
+   hashLink **newTable = malloc(sizeof(hashLink *) * newTableSize);
    hashLink *tempOld;
    hashLink *tempNew;
    for(i = 0; i < ht->tableSize; i++){
       tempOld = ht->table[i];
       while(tempOld != 0){
 	 idx = (*hashFunc)(tempOld->key) % newTableSize;
-	 tempNew = temp[idx];
-	 while(tempNew != 0){
-	    tempNew = tempNew->next;
-	 }
-	 tempNew = tempOld;
+	 tempNew = malloc(sizeof(hashLink*));
+	 tempNew->value = tempOld->value;
+	 tempNew->key = tempOld->key;
+	 tempNew->next = newTable[idx];
+	 newTable[idx] = tempNew;
 	 tempOld = tempOld->next;
       }
    }
    _freeMap(ht);
    ht->tableSize = newTableSize;
    ht->count = temp_count;
-   ht->table = temp;
+   ht->table = newTable;
 }
 
 /*
@@ -128,7 +128,7 @@ void insertMap (struct hashMap * ht, void* k, void* v, comparator keyCompare, ha
    temp->next = ht->table[idx];
    ht->table[idx] = temp;
    ht->count++;
-   float lf = ht->count/ht->tableSize;
+   float lf = ((float)ht->count)/ht->tableSize;
    if(lf >= LOAD_FACTOR_THRESHOLD)
       _setTableSize(ht, ht->tableSize*2, keyCompare, hashFunc);
 }
@@ -177,7 +177,7 @@ int containsKey (struct hashMap * ht, void* k, comparator keyCompare, hashFuncPt
    */
 void removeKey (struct hashMap * ht, void* k, comparator keyCompare, hashFuncPtr hashFunc)
 {
-   int idx = (*hashFunc)(k);
+   int idx = (*hashFunc)(k) % ht->tableSize;
    hashLink *temp = ht->table[idx];
    hashLink *remove;
    while(temp->next != 0){
@@ -317,8 +317,7 @@ int  hasNextMap(struct mapItr *itr)
 
    if (itr->count >= itr->map->tableSize)
       return 0;
-
-
+   
    return 1;
 
 }

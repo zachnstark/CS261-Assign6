@@ -121,10 +121,10 @@ int main (int argc, const char * argv[]) {
    const char* filename;
    int tableSize = 10; 
    struct hashMap *hashTable = createMap(tableSize);
-   clock_t timer;
+   clock_t begin, end;
    FILE *fileptr;
    void*  key;
-   struct mapItr *myItr = createMapIterator(hashTable); 
+//   struct mapItr *myItr = createMapIterator(hashTable); 
    /*
       this part is using command line arguments, you can use them if you wish
       but it is not required. DO NOT remove this code though, we will use it for
@@ -140,7 +140,7 @@ int main (int argc, const char * argv[]) {
 
    printf("opening file: %s\n", filename);
 
-   timer = clock();
+   begin = clock();
 
    //hashTable = createMap(tableSize);
 
@@ -160,15 +160,15 @@ int main (int argc, const char * argv[]) {
 	    insertMap(hashTable, wordNext, newKey2, myCompare, hash2);
 	 }
       }
-      printf("%f", (float)clock()); 
    }
    /*... concordance code ends here ...*/
 
    printMap(hashTable, keyPrint, valPrint);
 
    fclose(fileptr);
-   timer = clock();// - timer;
-   printf("\nconcordance ran in %f seconds\n", ((float)clock()) / CLOCKS_PER_SEC);
+   end = clock();
+   double time_spent = (double)(end-begin)/CLOCKS_PER_SEC;
+   printf("\nconcordance ran in %f seconds\n", time_spent);
    printf("Table emptyBuckets = %d\n", emptyBuckets(hashTable));
    printf("Table count = %d\n", size(hashTable));
    printf("Table capacity = %d\n", capacity(hashTable));
@@ -176,9 +176,9 @@ int main (int argc, const char * argv[]) {
 
    printf("Deleting keys\n");
 
-   removeKey(hashTable, "and", myCompare, hash2);
+   /*removeKey(hashTable, "and", myCompare, hash2);
    removeKey(hashTable, "me", myCompare, hash2);
-   removeKey(hashTable, "the", myCompare, hash2);
+   removeKey(hashTable, "the", myCompare, hash2);*/
    /* printMap(hashTable); */
    printKeyValues(hashTable, keyPrint, valPrint);
 
@@ -188,15 +188,15 @@ int main (int argc, const char * argv[]) {
 
 
    /* Free up our keys and values using our iterator!!  Also printing them as we go along */
+   struct mapItr *myItr = createMapIterator(hashTable);
    while(hasNextMap(myItr))
    {
       key = nextMap(myItr);
       int *value = atMap(hashTable,key, myCompare, hash2);
       printf("Freeing ...Key = %s, value = %d \n", (char*)key, *value);
-      free(value);  /* To match the malloc above*/
+      //free(value);  // To match the malloc above
       free(key);
    }
-
    deleteMap(hashTable);
    printf("\nDeleted the table\n");
    return 0;

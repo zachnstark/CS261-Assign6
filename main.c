@@ -147,17 +147,19 @@ int main (int argc, const char * argv[]) {
    /*... concordance code goes here ...*/
    fileptr = fopen(filename, "r+");
    char* wordNext = "starter";
-   int i = 1;
-   void* v = &i;
    while(wordNext != 0){
       wordNext = getWord(fileptr);
       if(wordNext != 0){
-	 if(containsKey(hashTable, wordNext, myCompare, hash2) == 0)
+	 if(containsKey(hashTable, wordNext, myCompare, hash2) == 0){
+	    void* v = malloc(sizeof(void*));
+	    *(int*)v = 1;
 	    insertMap(hashTable, wordNext, v, myCompare, hash2);
+	 }
 	 else{
-	    int newKey = *(int*)(atMap(hashTable, wordNext, myCompare, hash2)) + 1;
-	    void* newKey2 = &newKey;
-	    insertMap(hashTable, wordNext, newKey2, myCompare, hash2);
+	    /*int newVal = *(int*)(atMap(hashTable, wordNext, myCompare, hash2)) + 1;
+	    void* newVal2 = &newVal;
+	    insertMap(hashTable, wordNext, newVal2, myCompare, hash2);*/
+	    *(int*)(atMap(hashTable, wordNext, myCompare, hash2)) = *(int*)atMap(hashTable, wordNext, myCompare, hash2)+1;
 	 }
       }
    }
@@ -176,15 +178,20 @@ int main (int argc, const char * argv[]) {
 
    printf("Deleting keys\n");
 
-   /*removeKey(hashTable, "and", myCompare, hash2);
+   removeKey(hashTable, "and", myCompare, hash2);
    removeKey(hashTable, "me", myCompare, hash2);
-   removeKey(hashTable, "the", myCompare, hash2);*/
-   /* printMap(hashTable); */
+   removeKey(hashTable, "the", myCompare, hash2);
+   printMap(hashTable, keyPrint, valPrint); 
+   printf("Table emptyBuckets = %d\n", emptyBuckets(hashTable));
+   printf("Table count = %d\n", size(hashTable));
+   printf("Table capacity = %d\n", capacity(hashTable));
+   printf("Table load = %f\n", tableLoad(hashTable));
+
    printKeyValues(hashTable, keyPrint, valPrint);
 
    /* For Tag Cloud */
-   /*generateTagCloudData(hashTable,"tag.csv");
-   */
+   generateTagCloudData(hashTable,"tag.csv");
+   
 
 
    /* Free up our keys and values using our iterator!!  Also printing them as we go along */
@@ -194,7 +201,7 @@ int main (int argc, const char * argv[]) {
       key = nextMap(myItr);
       int *value = atMap(hashTable,key, myCompare, hash2);
       printf("Freeing ...Key = %s, value = %d \n", (char*)key, *value);
-      //free(value);  // To match the malloc above
+      free(value);  // To match the malloc above
       free(key);
    }
    deleteMap(hashTable);

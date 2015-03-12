@@ -183,15 +183,21 @@ void removeKey (struct hashMap * ht, void* k, comparator keyCompare, hashFuncPtr
    while(temp->next != 0){
       if((*keyCompare)(temp->next->key, k) == 0){
 	 remove = temp->next;
-         temp = temp->next->next;
-         free(remove);
+         temp->next = temp->next->next;
+	 free(remove->value);
+         free(remove->key);
+	 free(remove);
 	 ht->count--;
 	 return;
       }
       temp = temp->next;
    }
    if((*keyCompare)(ht->table[idx]->key, k) == 0){
+      remove = ht->table[idx];
       ht->table[idx] = ht->table[idx]->next;
+      free(remove->value);
+      free(remove->key);
+      free(remove);      
       ht->count--;
       return;
    }

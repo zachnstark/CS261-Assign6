@@ -10,7 +10,7 @@ typedef int (*comparator)(void* key1, void* key2);
 typedef  int (*hashFuncPtr)(void* key);
 
 /* load factor threshold for resizing the hash table */
-# define LOAD_FACTOR_THRESHOLD 8.0
+# define LOAD_FACTOR_THRESHOLD 0.75 
 
 struct hashMap *createMap(int tableSize);
 
